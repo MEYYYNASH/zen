@@ -1957,29 +1957,30 @@ aside.ai-sidebar.open {
 
 @media (max-width: 1024px) {
     /* Let the page scroll naturally on mobile to prevent WebKit/Safari touch scroll lock bugs */
-    body {
-        height: auto;
-        overflow-y: auto;
+    html, body {
+        height: auto !important;
+        overflow-y: auto !important;
+        min-height: 100% !important;
     }
     
     body.sidebar-open {
         overflow: hidden !important;
         height: 100vh !important;
-        position: fixed;
-        width: 100%;
+        position: fixed !important;
+        width: 100% !important;
     }
 
     .app-container {
         flex-direction: column;
-        height: auto;
-        min-height: 100vh;
-        overflow: visible;
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
     }
 
     main.main-content {
-        height: auto;
-        min-height: 100vh;
-        overflow: visible;
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
         display: flex;
         flex-direction: column;
     }
