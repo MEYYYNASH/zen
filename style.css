@@ -1956,28 +1956,40 @@ aside.ai-sidebar.open {
 }
 
 @media (max-width: 1024px) {
-    /* Island navbar is position:fixed → no longer in flow
-       App-container fills the full viewport */
+    /* Let the page scroll naturally on mobile to prevent WebKit/Safari touch scroll lock bugs */
+    body {
+        height: auto;
+        overflow-y: auto;
+    }
+    
+    body.sidebar-open {
+        overflow: hidden !important;
+        height: 100vh !important;
+        position: fixed;
+        width: 100%;
+    }
+
     .app-container {
         flex-direction: column;
-        height: 100vh;
-        overflow: hidden;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
     }
 
     main.main-content {
-        height: 100%;
-        overflow: hidden;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
         display: flex;
         flex-direction: column;
-        /* No padding-top here — view-workspace handles the navbar clearance */
     }
 
-    /* view-workspace must flex-grow and scroll internally */
+    /* view-workspace scrolls naturally with the body on mobile */
     .view-workspace {
         flex: 1;
-        overflow-y: auto;
+        overflow-y: visible;
         overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
+        height: auto;
     }
 
     /* Mobile drawer covers full height and overlaps island header when open */
