@@ -1885,8 +1885,8 @@ const TOOLS = [
         name: 'Universal PDF Converter',
         category: 'file',
         icon: '<i class="fa-solid fa-file-pdf"></i>',
-        description: 'Convert any file (TXT, JSON, CSV table, Images, HTML, or Base64) into a beautifully formatted PDF report.',
-        tags: ['pdf', 'convert', 'csv to pdf', 'image to pdf', 'html to pdf', 'batch pdf', 'merge', 'universal'],
+        description: 'Convert any file (TXT, JSON, CSV table, Images, HTML, Markdown, or Base64) into a beautifully formatted PDF report.',
+        tags: ['pdf', 'convert', 'csv to pdf', 'image to pdf', 'html to pdf', 'markdown to pdf', 'batch pdf', 'merge', 'universal'],
         render() {
             return `
                 <div class="tool-grid-2col">
@@ -1897,7 +1897,7 @@ const TOOLS = [
                             <div class="uploader-box" id="updf-dropzone">
                                 <i class="fa-solid fa-cloud-arrow-up uploader-icon" style="color:var(--accent-secondary);"></i>
                                 <div class="uploader-text">Select or drop multiple files here</div>
-                                <div class="uploader-hint">Supports .txt, .json, .csv, images, .html, and base64 text files</div>
+                                <div class="uploader-hint">Supports .txt, .json, .csv, .md, images, .html, and base64 text files</div>
                                 <input type="file" id="updf-file-input" multiple style="display: none;">
                             </div>
                         </div>
@@ -1907,6 +1907,19 @@ const TOOLS = [
                             <label>Files to Process</label>
                             <div id="updf-files-list" style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:10px; max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
                                 <div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">No files selected</div>
+                            </div>
+                        </div>
+
+                        <!-- Cover Page Options -->
+                        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:12px; margin-top:10px;">
+                            <div class="input-group" style="flex-direction:row; gap:10px; align-items:center; margin-bottom:0;">
+                                <input type="checkbox" id="updf-cover-page" style="width:16px; height:16px; cursor:pointer;">
+                                <label for="updf-cover-page" style="cursor:pointer; font-size:12px; font-weight:700; color:var(--accent-secondary);">Add Premium Cover Page</label>
+                            </div>
+                            <div id="updf-cover-inputs" style="display:none; margin-top:10px; gap:8px; flex-direction:column;">
+                                <input type="text" class="form-input" id="updf-cover-title" placeholder="Document Title" value="Universal Compilation Report" style="font-size:12px; padding:6px 10px;">
+                                <input type="text" class="form-input" id="updf-cover-subtitle" placeholder="Document Subtitle" value="An All-in-One MeyTool Generation" style="font-size:12px; padding:6px 10px;">
+                                <input type="text" class="form-input" id="updf-cover-author" placeholder="Author / Organization" value="Developer User" style="font-size:12px; padding:6px 10px;">
                             </div>
                         </div>
 
@@ -1927,9 +1940,15 @@ const TOOLS = [
                             </div>
                         </div>
 
-                        <div class="input-group" style="flex-direction:row; gap:10px; align-items:center; margin-top:10px;">
-                            <input type="checkbox" id="updf-page-num" checked style="width:16px; height:16px; cursor:pointer;">
-                            <label for="updf-page-num" style="cursor:pointer; font-size:12px;">Auto Page Numbering</label>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
+                            <div class="input-group" style="flex-direction:row; gap:10px; align-items:center;">
+                                <input type="checkbox" id="updf-page-num" checked style="width:16px; height:16px; cursor:pointer;">
+                                <label for="updf-page-num" style="cursor:pointer; font-size:12px;">Auto Page Numbering</label>
+                            </div>
+                            <div class="input-group" style="flex-direction:row; gap:10px; align-items:center;">
+                                <input type="checkbox" id="updf-auto-download" checked style="width:16px; height:16px; cursor:pointer;">
+                                <label for="updf-auto-download" style="cursor:pointer; font-size:12px;">Auto-Download PDF</label>
+                            </div>
                         </div>
 
                         <button class="app-btn primary" id="updf-convert-btn" style="width:100%; margin-top:15px;">
@@ -1941,7 +1960,7 @@ const TOOLS = [
                         <div class="input-group">
                             <label>Compiler Console Log</label>
                             <div class="output-container" style="margin-top:0;">
-                                <pre class="output-pre" id="updf-log" style="min-height:220px; max-height:300px; overflow-y:auto; font-size:11px;">[Ready] Waiting for files to compile...</pre>
+                                <pre class="output-pre" id="updf-log" style="min-height:250px; max-height:350px; overflow-y:auto; font-size:11px;">[Ready] Waiting for files to compile...</pre>
                             </div>
                         </div>
                         
@@ -1959,6 +1978,9 @@ const TOOLS = [
             const styleTemplate = document.getElementById('updf-template');
             const pdfName = document.getElementById('updf-name');
             const pageNumCheckbox = document.getElementById('updf-page-num');
+            const coverCheckbox = document.getElementById('updf-cover-page');
+            const coverInputs = document.getElementById('updf-cover-inputs');
+            const autoDownloadCheckbox = document.getElementById('updf-auto-download');
             const convertBtn = document.getElementById('updf-convert-btn');
             const logBox = document.getElementById('updf-log');
             
@@ -1966,6 +1988,10 @@ const TOOLS = [
             const progressFill = document.getElementById('updf-progress-fill');
 
             let queueFiles = [];
+
+            coverCheckbox.onchange = () => {
+                coverInputs.style.display = coverCheckbox.checked ? 'flex' : 'none';
+            };
 
             const updateLog = (msg, append = true) => {
                 const prefix = `[${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}] `;
@@ -1991,6 +2017,7 @@ const TOOLS = [
                     let icon = 'fa-file-lines';
                     if (file.name.endsWith('.json')) icon = 'fa-code';
                     else if (file.name.endsWith('.csv')) icon = 'fa-table';
+                    else if (file.name.endsWith('.md')) icon = 'fa-brands fa-markdown';
                     else if (file.type.startsWith('image/')) icon = 'fa-image';
                     else if (file.name.endsWith('.html')) icon = 'fa-file-code';
 
@@ -2069,6 +2096,74 @@ const TOOLS = [
 
                 let pageIdx = 0;
 
+                // Cover Page Generator
+                const showCover = coverCheckbox.checked;
+                if (showCover) {
+                    updateLog('Adding Premium cover page to document...');
+                    const coverTitle = document.getElementById('updf-cover-title').value || 'Report';
+                    const coverSubtitle = document.getElementById('updf-cover-subtitle').value || '';
+                    const coverAuthor = document.getElementById('updf-cover-author').value || 'MeyTool';
+                    const coverDate = new Date().toLocaleDateString();
+
+                    if (templateMode === 'developer') {
+                        doc.setFillColor(15, 23, 42);
+                        doc.rect(0, 0, pageWidth, pageHeight, 'F');
+                        
+                        doc.setTextColor(56, 189, 248);
+                        doc.setFont('courier', 'bold');
+                        doc.setFontSize(28);
+                        doc.text(coverTitle, margin, pageHeight / 3);
+                        
+                        doc.setTextColor(244, 63, 94);
+                        doc.setFont('courier', 'normal');
+                        doc.setFontSize(14);
+                        doc.text(coverSubtitle, margin, pageHeight / 3 + 15);
+                        
+                        doc.setTextColor(148, 163, 184);
+                        doc.setFontSize(10);
+                        doc.text(`Author: ${coverAuthor}`, margin, pageHeight - 40);
+                        doc.text(`Date: ${coverDate}`, margin, pageHeight - 32);
+                    } else if (templateMode === 'presentation') {
+                        doc.setFillColor(245, 245, 250);
+                        doc.rect(0, 0, pageWidth, pageHeight, 'F');
+                        doc.setDrawColor(255, 0, 255);
+                        doc.setLineWidth(2);
+                        doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+                        
+                        doc.setTextColor(15, 23, 42);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(32);
+                        doc.text(coverTitle, pageWidth / 2, pageHeight / 2 - 10, { align: 'center' });
+                        
+                        doc.setTextColor(100, 100, 100);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(16);
+                        doc.text(coverSubtitle, pageWidth / 2, pageHeight / 2 + 10, { align: 'center' });
+                        
+                        doc.setFontSize(12);
+                        doc.text(`Author: ${coverAuthor} | Date: ${coverDate}`, pageWidth / 2, pageHeight - 30, { align: 'center' });
+                    } else {
+                        doc.setTextColor(15, 23, 42);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(36);
+                        doc.text(coverTitle, margin, pageHeight / 2 - 20);
+                        
+                        doc.setDrawColor(15, 23, 42);
+                        doc.setLineWidth(1);
+                        doc.line(margin, pageHeight / 2 - 10, pageWidth - margin, pageHeight / 2 - 10);
+                        
+                        doc.setTextColor(100, 100, 100);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(16);
+                        doc.text(coverSubtitle, margin, pageHeight / 2 + 10);
+                        
+                        doc.setFontSize(12);
+                        doc.text(`Prepared by: ${coverAuthor}`, margin, pageHeight - 40);
+                        doc.text(`Date: ${coverDate}`, margin, pageHeight - 30);
+                    }
+                    pageIdx++;
+                }
+
                 for (let i = 0; i < queueFiles.length; i++) {
                     const file = queueFiles[i];
                     updateLog(`Processing file [${i + 1}/${queueFiles.length}]: ${file.name}...`);
@@ -2133,11 +2228,11 @@ const TOOLS = [
                     const isCsv = file.name.endsWith('.csv');
                     const isImage = file.type.startsWith('image/');
                     const isHtml = file.name.endsWith('.html') || file.name.endsWith('.htm');
-                    const isBase64 = file.name.endsWith('.base64') || (!isImage && fileContent.startsWith('data:'));
+                    const isMarkdown = file.name.endsWith('.md') || file.name.endsWith('.markdown');
+                    const isBase64 = file.name.endsWith('.base64') || (!isImage && !isMarkdown && fileContent.startsWith('data:'));
 
                     if (isImage) {
                         updateLog(`Rendering image: ${file.name}`);
-                        // Render image onto canvas to load dimensions
                         const img = await new Promise((resolve) => {
                             const imgEl = new Image();
                             imgEl.src = fileContent;
@@ -2150,7 +2245,6 @@ const TOOLS = [
                         let w = img.width;
                         let h = img.height;
                         
-                        // Scale image to fit within bounds
                         const ratio = Math.min(maxWidth / w, maxHeight / h);
                         w = w * ratio;
                         h = h * ratio;
@@ -2209,7 +2303,6 @@ const TOOLS = [
                                 });
                                 posY = doc.lastAutoTable.finalY + 10;
                             } else {
-                                // Fallback: render CSV as plain text if plugin missing
                                 updateLog('autoTable plugin not loaded — rendering CSV as text', true);
                                 const plainText = rows.map(r => r.join('  |  ')).join('\n');
                                 const lines = doc.splitTextToSize(plainText, pageWidth - (margin * 2));
@@ -2225,7 +2318,6 @@ const TOOLS = [
                     } 
                     else if (isHtml) {
                         updateLog(`Rendering HTML layout via html2canvas`);
-                        // Render using temp div
                         const tempDiv = document.createElement('div');
                         tempDiv.style.cssText = `position:absolute; left:-9999px; width:${pageWidth - (margin * 2)}mm; padding:15px; font-family:sans-serif; font-size:12px; line-height:1.4; color:#000; background:#fff;`;
                         tempDiv.innerHTML = fileContent;
@@ -2243,12 +2335,69 @@ const TOOLS = [
                             updateLog(`HTML render error: ${err.message}`, true);
                             doc.text(`HTML rendering failed: ${err.message}`, margin, posY);
                         } finally {
-                            // Always remove the temp element — prevents DOM leak if html2canvas throws
                             if (document.body.contains(tempDiv)) {
                                 document.body.removeChild(tempDiv);
                             }
                         }
-                    } 
+                    }
+                    else if (isMarkdown) {
+                        updateLog(`Parsing Markdown document`);
+                        const lines = fileContent.split('\n');
+                        lines.forEach(line => {
+                            let textLine = line.trim();
+                            let isHeader = false;
+                            let isListItem = false;
+                            
+                            if (textLine.startsWith('# ')) {
+                                doc.setFontSize(16);
+                                doc.setFont(undefined, 'bold');
+                                textLine = textLine.replace('# ', '');
+                                isHeader = true;
+                            } else if (textLine.startsWith('## ')) {
+                                doc.setFontSize(14);
+                                doc.setFont(undefined, 'bold');
+                                textLine = textLine.replace('## ', '');
+                                isHeader = true;
+                            } else if (textLine.startsWith('### ')) {
+                                doc.setFontSize(12);
+                                doc.setFont(undefined, 'bold');
+                                textLine = textLine.replace('### ', '');
+                                isHeader = true;
+                            } else if (textLine.startsWith('- ') || textLine.startsWith('* ')) {
+                                doc.setFontSize(10);
+                                doc.setFont(undefined, 'normal');
+                                textLine = '• ' + textLine.substring(2);
+                                isListItem = true;
+                            } else {
+                                doc.setFontSize(10);
+                                doc.setFont(undefined, 'normal');
+                            }
+
+                            // Bold parsing: **bold** -> bold
+                            textLine = textLine.replace(/\*\*(.*?)\*\*/g, '$1');
+
+                            const splitLines = doc.splitTextToSize(textLine, pageWidth - (margin * 2));
+                            splitLines.forEach(l => {
+                                if (posY > pageHeight - margin) {
+                                    doc.addPage();
+                                    pageIdx++;
+                                    posY = 20;
+                                    if (templateMode === 'developer') {
+                                        doc.setFillColor(30, 41, 59); doc.rect(0, 0, pageWidth, pageHeight, 'F');
+                                        doc.setTextColor(56, 189, 248); doc.setFont('courier');
+                                    }
+                                }
+                                doc.text(l, margin, posY);
+                                posY += isHeader ? 8 : 5;
+                            });
+                            
+                            if (isHeader || isListItem) {
+                                posY += 2;
+                            } else {
+                                posY += 3;
+                            }
+                        });
+                    }
                     else if (isBase64) {
                         updateLog(`Decoding Base64 stream`);
                         let rawText = '';
@@ -2259,7 +2408,7 @@ const TOOLS = [
                             }
                             rawText = atob(cleanB64.replace(/\s/g, ''));
                         } catch(e) {
-                            rawText = fileContent; // fallback
+                            rawText = fileContent;
                         }
                         
                         const lines = doc.splitTextToSize(rawText, pageWidth - (margin * 2));
@@ -2278,7 +2427,6 @@ const TOOLS = [
                         });
                     } 
                     else {
-                        // Plain Text format
                         updateLog(`Adding plain text contents`);
                         const lines = doc.splitTextToSize(fileContent, pageWidth - (margin * 2));
                         lines.forEach(line => {
@@ -2306,26 +2454,35 @@ const TOOLS = [
                     doc.setPage(i);
                     doc.setFontSize(8);
                     
+                    // Skip page numbering on cover page if cover page is shown
+                    if (showCover && i === 1) continue;
+
                     if (templateMode === 'developer') {
                         doc.setTextColor(98, 98, 128);
                         doc.setFont('courier', 'normal');
                         doc.text("MeyTool Compiler Report v1.0", margin, 10);
                         if (showPageNum) {
-                            doc.text(`[PAGE ${i} OF ${totalPages}]`, pageWidth - margin - 25, pageHeight - 8);
+                            const pgNum = showCover ? i - 1 : i;
+                            const pgTotal = showCover ? totalPages - 1 : totalPages;
+                            doc.text(`[PAGE ${pgNum} OF ${pgTotal}]`, pageWidth - margin - 25, pageHeight - 8);
                         }
                     } else if (templateMode === 'presentation') {
                         doc.setTextColor(100, 100, 100);
                         doc.setFont('helvetica', 'normal');
                         doc.text("MeyTool Presentation Export", margin, 10);
                         if (showPageNum) {
-                            doc.text(`Slide ${i} of ${totalPages}`, pageWidth - margin - 20, pageHeight - 8);
+                            const pgNum = showCover ? i - 1 : i;
+                            const pgTotal = showCover ? totalPages - 1 : totalPages;
+                            doc.text(`Slide ${pgNum} of ${pgTotal}`, pageWidth - margin - 20, pageHeight - 8);
                         }
                     } else {
                         doc.setTextColor(120, 120, 120);
                         doc.setFont('helvetica', 'normal');
                         doc.text("MeyTool Export Document", margin, 10);
                         if (showPageNum) {
-                            doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin - 20, pageHeight - 10);
+                            const pgNum = showCover ? i - 1 : i;
+                            const pgTotal = showCover ? totalPages - 1 : totalPages;
+                            doc.text(`Page ${pgNum} of ${pgTotal}`, pageWidth - margin - 20, pageHeight - 10);
                         }
                     }
                 }
@@ -2337,8 +2494,22 @@ const TOOLS = [
                 if (!filename) filename = 'meytool_universal_report.pdf';
                 if (!filename.endsWith('.pdf')) filename += '.pdf';
 
-                doc.save(filename);
-                utils.showToast('Universal PDF generated!');
+                if (autoDownloadCheckbox.checked) {
+                    doc.save(filename);
+                    utils.showToast('Universal PDF generated & downloaded!');
+                } else {
+                    // Just save and update log, then show download button
+                    const pdfData = doc.output('blob');
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'app-btn secondary';
+                    downloadBtn.style.marginTop = '10px';
+                    downloadBtn.innerHTML = '<i class="fa-solid fa-download"></i> Download Completed PDF';
+                    downloadBtn.onclick = () => {
+                        doc.save(filename);
+                    };
+                    logBox.parentNode.appendChild(downloadBtn);
+                    utils.showToast('Universal PDF generated! Click below to download.');
+                }
                 window.incrementStatsRun();
             };
 

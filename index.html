@@ -21,6 +21,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- Advanced File, OCR and Archive Libraries -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/tesseract.js@4.0.1/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -80,14 +84,24 @@
                     <span class="di-label" data-translate="nav_dashboard">Dashboard</span>
                     <span class="di-arrow">›</span>
                 </div>
+                <div class="nav-item drawer-item" data-category="finance">
+                    <span class="di-icon di-amber"><i class="fa-solid fa-calculator"></i></span>
+                    <span class="di-label" data-translate="nav_finance">Accounting & Finance</span>
+                    <span class="di-arrow">›</span>
+                </div>
                 <div class="nav-item drawer-item" data-category="text">
                     <span class="di-icon di-blue"><i class="fa-solid fa-file-lines"></i></span>
                     <span class="di-label" data-translate="nav_text">Text Tools</span>
                     <span class="di-arrow">›</span>
                 </div>
                 <div class="nav-item drawer-item" data-category="file">
-                    <span class="di-icon di-amber"><i class="fa-solid fa-folder-open"></i></span>
+                    <span class="di-icon di-blue"><i class="fa-solid fa-folder-open"></i></span>
                     <span class="di-label" data-translate="nav_file">File Tools</span>
+                    <span class="di-arrow">›</span>
+                </div>
+                <div class="nav-item drawer-item" data-category="adv-file">
+                    <span class="di-icon di-rose"><i class="fa-solid fa-file-shield"></i></span>
+                    <span class="di-label" data-translate="nav_adv_file">Advanced Files</span>
                     <span class="di-arrow">›</span>
                 </div>
                 <div class="nav-item drawer-item" data-category="encode">
@@ -377,6 +391,8 @@
 
     <!-- App Logic Script -->
     <script src="tools.js?v=1.1"></script>
+    <script src="finance_tools.js?v=1.1"></script>
+    <script src="file_tools.js?v=1.1"></script>
     <script src="app.js?v=1.1"></script>
 </body>
 </html>

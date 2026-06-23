@@ -2,8 +2,10 @@
 const TRANSLATIONS = {
     en: {
         nav_dashboard: "Dashboard",
+        nav_finance: "Accounting & Finance",
         nav_text: "Text Tools",
         nav_file: "File Tools",
+        nav_adv_file: "Advanced Files",
         nav_encode: "Encode / Decode",
         nav_image: "Image Tools",
         nav_dev: "Developer Tools",
@@ -35,8 +37,10 @@ const TRANSLATIONS = {
     },
     kh: {
         nav_dashboard: "ផ្ទាំងគ្រប់គ្រង",
+        nav_finance: "គណនេយ្យ និងហិរញ្ញវត្ថុ",
         nav_text: "ឧបករណ៍អត្ថបទ",
         nav_file: "ឧបករណ៍ឯកសារ",
+        nav_adv_file: "ឯកសារកម្រិតខ្ពស់",
         nav_encode: "កូដនីយកម្ម / ឌិកូដ",
         nav_image: "ឧបករណ៍រូបភាព",
         nav_dev: "ឧបករណ៍អភិវឌ្ឍន៍",
@@ -159,8 +163,10 @@ class AppManager {
         
         // Group tools by categories
         const categories = {
+            finance: 'Accounting & Finance',
             text: 'Text Tools',
             file: 'File Tools',
+            'adv-file': 'Advanced Files',
             encode: 'Encode / Decode',
             image: 'Image Tools',
             developer: 'Developer Tools',
@@ -472,9 +478,14 @@ class AppManager {
                     // Scroll down to category section — use data-category attribute for accuracy
                     setTimeout(() => {
                         const catMap = {
-                            text: 'text tools', file: 'file tools',
-                            encode: 'encode', image: 'image tools',
-                            developer: 'developer tools', utilities: 'utilities',
+                            finance: 'accounting & finance',
+                            text: 'text tools',
+                            file: 'file tools',
+                            'adv-file': 'advanced files',
+                            encode: 'encode',
+                            image: 'image tools',
+                            developer: 'developer tools',
+                            utilities: 'utilities',
                             creator: 'creator tools'
                         };
                         const keyword = catMap[cat] || cat;
