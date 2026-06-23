@@ -465,8 +465,10 @@ class AppManager {
 
         const dashboardPanel = document.getElementById('panel-dashboard');
         const workspacePanel = document.getElementById('panel-tool-workspace');
+        const mainWorkspace = document.getElementById('main-workspace');
 
         if (tabId === 'dashboard') {
+            if (mainWorkspace) mainWorkspace.classList.remove('tool-fit-viewport');
             dashboardPanel.style.display = 'block';
             workspacePanel.style.display = 'none';
             
@@ -481,6 +483,14 @@ class AppManager {
         } else {
             const tool = TOOLS.find(t => t.id === tabId);
             if (!tool) return;
+
+            if (mainWorkspace) {
+                if (tool.fitViewport) {
+                    mainWorkspace.classList.add('tool-fit-viewport');
+                } else {
+                    mainWorkspace.classList.remove('tool-fit-viewport');
+                }
+            }
 
             dashboardPanel.style.display = 'none';
             workspacePanel.style.display = 'flex';

@@ -3165,12 +3165,13 @@ updateLog(`Failed: ${err.message}`);
         name: 'CV Builder Pro',
         category: 'creator',
         popular: true,
+        fitViewport: true,
         icon: '<i class="fa-solid fa-file-invoice"></i>',
         description: 'Create ATS-friendly resumes, edit profile photos, build cover letter emails, and scan CV scores instantly.',
         tags: ['cv', 'resume', 'builder', 'jobs', 'careers', 'pdf', 'creator', 'cover-letter', 'ats'],
         render() {
             return `
-                <div class="cv-builder-container" style="display:flex; flex-direction:column; height:calc(100vh - 120px); width:100%; overflow:hidden; background:rgba(0,0,0,0.15); border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+                <div class="cv-builder-container" style="display:flex; flex-direction:column; height:100%; width:100%; overflow:hidden; background:rgba(0,0,0,0.15); border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
                     <style>
                         .cv-builder-container * {
                             box-sizing: border-box;
@@ -3217,7 +3218,7 @@ updateLog(`Failed: ${err.message}`);
                             overflow: hidden;
                         }
                         .cv-tab-panel.active {
-                            display: flex;
+                            display: block;
                         }
                         
                         /* Paper CV Split Layout */
@@ -3538,6 +3539,27 @@ updateLog(`Failed: ${err.message}`);
                             gap: 15px;
                             overflow-y: auto;
                         }
+                        .pe-form label {
+                            font-size: 10px;
+                            font-weight: 700;
+                            color: var(--text-secondary);
+                            text-transform: uppercase;
+                            margin-bottom: 4px;
+                            display: block;
+                        }
+                        .pe-form input, .pe-form select, .pe-form textarea {
+                            background: rgba(255,255,255,0.03) !important;
+                            border: 1px solid rgba(255,255,255,0.08) !important;
+                            color: white !important;
+                            padding: 8px 10px !important;
+                            border-radius: 6px !important;
+                            font-size: 12px !important;
+                            width: 100%;
+                        }
+                        .pe-form input:focus, .pe-form select:focus, .pe-form textarea:focus {
+                            border-color: var(--accent-secondary) !important;
+                            outline: none;
+                        }
                         .pe-canvas-area {
                             background: rgba(10,10,20,0.4);
                             display: flex;
@@ -3557,6 +3579,19 @@ updateLog(`Failed: ${err.message}`);
                         
                         /* Responsive layout override */
                         @media (max-width: 1024px) {
+                            .cv-builder-container {
+                                height: auto !important;
+                                overflow: visible !important;
+                            }
+                            .cv-tab-panel {
+                                height: auto !important;
+                                overflow: visible !important;
+                                display: none;
+                            }
+                            .cv-tab-panel.active {
+                                display: flex !important;
+                                flex-direction: column !important;
+                            }
                             .cv-layout-split {
                                 grid-template-columns: 1fr !important;
                                 height: auto !important;
@@ -3569,18 +3604,45 @@ updateLog(`Failed: ${err.message}`);
                                 overflow-x: auto !important;
                                 padding: 10px !important;
                             }
+                            .cv-template-sidebar * {
+                                flex-shrink: 0 !important;
+                            }
+                            .cv-template-cat {
+                                margin: 0 10px !important;
+                                align-self: center !important;
+                            }
                             .cv-form-pane {
                                 height: auto !important;
+                                overflow: visible !important;
                             }
                             .cv-preview-pane {
                                 height: auto !important;
-                                overflow-x: auto !important;
+                                overflow-x: hidden !important;
+                                overflow-y: visible !important;
+                                width: 100% !important;
+                                display: flex !important;
+                                flex-direction: column !important;
+                                align-items: center !important;
+                                padding: 10px !important;
                             }
                             .cv-resume-paper {
-                                transform: scale(0.65) !important;
+                                transform-origin: top center !important;
+                                margin-bottom: -580px !important; /* Compensate for transform height collapse */
                             }
                             .pe-container {
                                 grid-template-columns: 1fr !important;
+                                height: auto !important;
+                            }
+                            .pe-form {
+                                height: auto !important;
+                                overflow: visible !important;
+                                border-right: none !important;
+                                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                            }
+                            .pe-canvas-area {
+                                height: auto !important;
+                                overflow: visible !important;
+                                padding: 10px !important;
                             }
                         }
                     </style>
@@ -4669,9 +4731,13 @@ updateLog(`Failed: ${err.message}`);
                 updatePreview();
             };
 
-            // Zoom controls
-            let zoom = 0.75;
+            // Zoom controls based on screen width
+            let isMobile = window.innerWidth <= 1024;
+            let zoom = isMobile ? 0.45 : 0.75;
             const zoomValEl = document.getElementById('cv-zoom-level');
+            preview.style.transform = `scale(${zoom})`;
+            zoomValEl.textContent = `${Math.round(zoom * 100)}%`;
+
             document.getElementById('cv-zoom-in').onclick = () => {
                 zoom = Math.min(zoom + 0.1, 1.3);
                 preview.style.transform = `scale(${zoom})`;
@@ -4911,7 +4977,18 @@ updateLog(`Failed: ${err.message}`);
                 if (resumeData.education.length >= 1) { score += 10; feedback.push('✅ Education history provided.'); }
                 else { feedback.push('❌ Education details missing.'); }
                 
-                if (resumeData.skills.split(',').length >= 4) { score += 5; }
+                // Safely convert skills to string representation
+                let skillsString = '';
+                if (Array.isArray(resumeData.skills)) {
+                    skillsString = resumeData.skills.map(s => {
+                        if (s && typeof s === 'object') return s.name || '';
+                        return s || '';
+                    }).filter(Boolean).join(', ');
+                } else if (typeof resumeData.skills === 'string') {
+                    skillsString = resumeData.skills;
+                }
+
+                if (skillsString.split(',').length >= 4) { score += 5; }
 
                 // Keywords dictionary
                 const roleKeywords = {
@@ -4924,7 +5001,7 @@ updateLog(`Failed: ${err.message}`);
                 };
 
                 const targetKeywords = roleKeywords[role] || [];
-                const skillsText = resumeData.skills.toLowerCase();
+                const skillsText = skillsString.toLowerCase();
                 const matched = [];
                 const missing = [];
 
@@ -5234,6 +5311,16 @@ updateLog(`Failed: ${err.message}`);
             // Load Data helper
             const loadData = (data) => {
                 resumeData = { ...resumeData, ...data };
+                
+                // Normalize skills if imported as array
+                if (Array.isArray(resumeData.skills)) {
+                    resumeData.skills = resumeData.skills.map(s => {
+                        if (s && typeof s === 'object') return s.name || '';
+                        return s || '';
+                    }).filter(Boolean).join(', ');
+                } else if (typeof resumeData.skills !== 'string') {
+                    resumeData.skills = '';
+                }
                 
                 fullNameIn.value = resumeData.fullName || '';
                 jobTitleIn.value = resumeData.jobTitle || '';
