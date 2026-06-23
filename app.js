@@ -843,7 +843,9 @@ class AppManager {
         const closeSidebar = () => this.closeMobileSidebar();
 
         if (mobileToggle) {
-            mobileToggle.onclick = () => {
+            mobileToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 sidebar.classList.toggle('open');
                 const isOpen = sidebar.classList.contains('open');
                 overlay.style.display = isOpen ? 'block' : 'none';
@@ -853,10 +855,25 @@ class AppManager {
                 } else {
                     document.body.classList.remove('sidebar-open');
                 }
-            };
+            });
         }
-        if (drawerCloseBtn) drawerCloseBtn.onclick = closeSidebar;
-        overlay.onclick = closeSidebar;
+
+        if (drawerCloseBtn) {
+            drawerCloseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSidebar();
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSidebar();
+            });
+        }
+
         // --- Mobile Profile & Login Triggers ---
         const mobAuthBtn = document.getElementById('mob-auth-btn');
         const mobProfileTrigger = document.getElementById('mob-profile-trigger');
@@ -884,31 +901,43 @@ class AppManager {
             });
         });
 
-        // --- PWA Installation for Android / Mobile Chrome ---
+        // --- PWA Installation for Android / Mobile Chrome / iOS ---
         const installBtn = document.getElementById('mob-install-btn');
         let deferredPrompt = null;
+
+        // Force show download button on mobile devices so user knows it's available
+        if (installBtn) {
+            installBtn.style.display = 'flex';
+        }
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            if (installBtn) {
-                installBtn.style.display = 'flex';
-            }
         });
 
         if (installBtn) {
-            installBtn.onclick = (e) => {
+            installBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                if (!deferredPrompt) return;
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        utils.showToast('Installing MeyTool...');
+                
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            utils.showToast('Installing MeyTool...');
+                        }
+                        deferredPrompt = null;
+                    });
+                } else {
+                    // Show installation instructions based on OS
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                    if (isIOS) {
+                        utils.showToast('iOS: Tap Share <i class="fa-solid fa-share-from-square" style="color: var(--accent-primary);"></i> then "Add to Home Screen"', 'info');
+                    } else {
+                        utils.showToast('To Install: Click Browser Menu (3-dots) then select "Install App" or "Add to Home Screen"', 'info');
                     }
-                    deferredPrompt = null;
-                    installBtn.style.display = 'none';
-                });
-            };
+                }
+            });
         }
 
         window.addEventListener('appinstalled', () => {

@@ -2,7 +2,7 @@
   "name": "MeyTool Web Tools Hub",
   "short_name": "MeyTool",
   "description": "An ultra-modern, glassmorphic suite of essential web developer utilities and creators.",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#06060c",
   "theme_color": "#ff00ff",
