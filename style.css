@@ -2669,6 +2669,15 @@ aside.ai-sidebar.open {
     .preview-badge-sep {
         display: none;
     }
+/* Dashboard install button responsive logic */
+#dashboard-install-btn {
+    display: none !important; /* Hide on desktop */
+}
+
+@media (max-width: 1024px) {
+    #dashboard-install-btn {
+        display: flex !important; /* Show on mobile/tablet */
+    }
 }
 
 

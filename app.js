@@ -30,7 +30,8 @@ const TRANSLATIONS = {
         preview_desc: "You are using a preview version of this tool. Some features may change during development.",
         preview_safe: "Safe to use",
         preview_browser: "Works in browser",
-        preview_local: "Runs locally"
+        preview_local: "Runs locally",
+        btn_install_app: "Install MeyTool App"
     },
     kh: {
         nav_dashboard: "ផ្ទាំងគ្រប់គ្រង",
@@ -62,7 +63,8 @@ const TRANSLATIONS = {
         preview_desc: "អ្នកកំពុងប្រើប្រាស់កម្មវិធីជំនាន់សាកល្បង (Preview)។ មុខងារមួយចំនួនអាចនឹងផ្លាស់ប្តូរអំឡុងពេលអភិវឌ្ឍ។",
         preview_safe: "សុវត្ថិភាពក្នុងការប្រើប្រាស់",
         preview_browser: "ដំណើរការលើកម្មវិធីរុករក",
-        preview_local: "ដំណើរការលើម៉ាស៊ីនផ្ទាល់ខ្លួន"
+        preview_local: "ដំណើរការលើម៉ាស៊ីនផ្ទាល់ខ្លួន",
+        btn_install_app: "ដំឡើងកម្មវិធី MeyTool"
     }
 };
 
@@ -903,11 +905,15 @@ class AppManager {
 
         // --- PWA Installation for Android / Mobile Chrome / iOS ---
         const installBtn = document.getElementById('mob-install-btn');
+        const dashInstallBtn = document.getElementById('dashboard-install-btn');
         let deferredPrompt = null;
 
-        // Force show download button on mobile devices so user knows it's available
+        // Force show download buttons on mobile devices so user knows it's available
         if (installBtn) {
             installBtn.style.display = 'flex';
+        }
+        if (dashInstallBtn) {
+            dashInstallBtn.style.display = 'flex';
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -915,36 +921,40 @@ class AppManager {
             deferredPrompt = e;
         });
 
-        if (installBtn) {
-            installBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') {
-                            utils.showToast('Installing MeyTool...');
-                        }
-                        deferredPrompt = null;
-                    });
-                } else {
-                    // Show installation instructions based on OS
-                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                    if (isIOS) {
-                        utils.showToast('iOS: Tap Share <i class="fa-solid fa-share-from-square" style="color: var(--accent-primary);"></i> then "Add to Home Screen"', 'info');
-                    } else {
-                        utils.showToast('To Install: Click Browser Menu (3-dots) then select "Install App" or "Add to Home Screen"', 'info');
+        const handleInstallClick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        utils.showToast('Installing MeyTool...');
                     }
+                    deferredPrompt = null;
+                });
+            } else {
+                // Show installation instructions based on OS
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS) {
+                    utils.showToast('iOS: Tap Share <i class="fa-solid fa-share-from-square" style="color: var(--accent-primary);"></i> then "Add to Home Screen"', 'info');
+                } else {
+                    utils.showToast('To Install: Click Browser Menu (3-dots) then select "Install App" or "Add to Home Screen"', 'info');
                 }
-            });
+            }
+        };
+
+        if (installBtn) {
+            installBtn.addEventListener('click', handleInstallClick);
+        }
+        if (dashInstallBtn) {
+            dashInstallBtn.addEventListener('click', handleInstallClick);
         }
 
         window.addEventListener('appinstalled', () => {
             utils.showToast('App installed on your home screen! 🎉');
-            if (installBtn) {
-                installBtn.style.display = 'none';
-            }
+            if (installBtn) installBtn.style.display = 'none';
+            if (dashInstallBtn) dashInstallBtn.style.display = 'none';
         });
     }
 
