@@ -3159,6 +3159,781 @@ const ADV_FILE_TOOLS = [
                 }
             };
         }
+    },
+    {
+        id: 'creator-cv-builder',
+        name: 'CV Builder Pro',
+        category: 'creator',
+        popular: true,
+        icon: '<i class="fa-solid fa-file-invoice"></i>',
+        description: 'Create ATS-friendly resumes and export them as professional PDF documents instantly.',
+        tags: ['cv', 'resume', 'builder', 'jobs', 'careers', 'pdf', 'creator'],
+        render() {
+            return `
+                <div class="cv-builder-container" style="display:grid; grid-template-columns: 80px 380px 1fr; height:calc(100vh - 150px); width:100%; overflow:hidden; background:rgba(0,0,0,0.15); border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+                    <style>
+                        .cv-builder-container * {
+                            box-sizing: border-box;
+                        }
+                        .cv-template-sidebar {
+                            background: rgba(0, 0, 0, 0.3);
+                            border-right: 1px solid rgba(255,255,255,0.05);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            padding: 15px 0;
+                            gap: 12px;
+                            height: 100%;
+                            overflow-y: auto;
+                        }
+                        .cv-tpl-thumb {
+                            width: 55px;
+                            height: 75px;
+                            background: rgba(255,255,255,0.03);
+                            border: 1px solid rgba(255,255,255,0.1);
+                            border-radius: 6px;
+                            cursor: pointer;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 8px;
+                            text-align: center;
+                            padding: 4px;
+                            color: var(--text-secondary);
+                            transition: all 0.2s ease;
+                        }
+                        .cv-tpl-thumb i {
+                            font-size: 16px;
+                            margin-bottom: 4px;
+                        }
+                        .cv-tpl-thumb:hover, .cv-tpl-thumb.active {
+                            border-color: var(--accent-primary);
+                            background: rgba(255, 0, 255, 0.1);
+                            color: white;
+                        }
+                        .cv-form-pane {
+                            background: rgba(0, 0, 0, 0.2);
+                            border-right: 1px solid rgba(255,255,255,0.05);
+                            overflow-y: auto;
+                            padding: 20px;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 20px;
+                            height: 100%;
+                        }
+                        .cv-preview-pane {
+                            background: rgba(10, 10, 20, 0.5);
+                            overflow-y: auto;
+                            padding: 20px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: flex-start;
+                            height: 100%;
+                            position: relative;
+                        }
+                        .cv-resume-paper {
+                            width: 210mm;
+                            min-height: 297mm;
+                            background: white;
+                            color: black;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                            padding: 20mm;
+                            transform-origin: top center;
+                            transition: transform 0.2s ease;
+                            border-radius: 2px;
+                        }
+                        .cv-form-pane label {
+                            font-size: 10px;
+                            font-weight: 700;
+                            color: var(--text-secondary);
+                            text-transform: uppercase;
+                            margin-bottom: 4px;
+                            display: block;
+                        }
+                        .cv-form-pane input, .cv-form-pane textarea {
+                            background: rgba(255,255,255,0.03) !important;
+                            border: 1px solid rgba(255,255,255,0.08) !important;
+                            color: white !important;
+                            padding: 8px 10px !important;
+                            border-radius: 6px !important;
+                            font-size: 12px !important;
+                            width: 100%;
+                        }
+                        .cv-form-pane input:focus, .cv-form-pane textarea:focus {
+                            border-color: var(--accent-secondary) !important;
+                            outline: none;
+                        }
+                        .cv-dynamic-item {
+                            padding: 12px;
+                            background: rgba(255,255,255,0.02);
+                            border: 1px solid rgba(255,255,255,0.05);
+                            border-radius: 8px;
+                            position: relative;
+                            margin-bottom: 10px;
+                        }
+                        .cv-remove-btn {
+                            position: absolute;
+                            top: 8px;
+                            right: 8px;
+                            color: #ef4444;
+                            cursor: pointer;
+                            opacity: 0.7;
+                        }
+                        .cv-remove-btn:hover {
+                            opacity: 1;
+                        }
+                        
+                        /* Layout Custom Rules for A4 Paper Templates */
+                        .tpl-minimal-ats { font-family: 'Inter', sans-serif; color: #1a1a1a; }
+                        .tpl-minimal-ats h1 { font-size: 24px; text-transform: uppercase; margin-bottom: 4px; font-weight: 800; color: #000; }
+                        .tpl-minimal-ats .preview-header { border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; }
+                        .tpl-minimal-ats h3 { border-bottom: 1px solid #ccc; text-transform: uppercase; font-size: 11px; margin-top: 15px; margin-bottom: 8px; color: #000; font-weight: 700; }
+
+                        .tpl-modern-pro { display: grid; grid-template-columns: 180px 1fr; gap: 15px; padding: 0 !important; color: #333; }
+                        .tpl-modern-pro .preview-header { grid-column: 1 / -1; padding: 20px; background: #1e293b; color: white; border: none; }
+                        .tpl-modern-pro .preview-header h1 { color: white; margin: 0; font-size: 24px; }
+                        .tpl-modern-pro .preview-header p { color: #94a3b8 !important; margin: 4px 0 0 0; }
+                        .tpl-modern-pro .preview-left { padding: 15px; background: #f8fafc; }
+                        .tpl-modern-pro .preview-right { padding: 15px; }
+                        .tpl-modern-pro h3 { color: #3b82f6; border-bottom: 2px solid #3b82f6; font-size: 12px; margin-top: 10px; font-weight: 700; }
+
+                        .tpl-creative { background: #fff; color: #1e293b; }
+                        .tpl-creative .preview-header { background: linear-gradient(135deg, #6366f1, #a855f7); padding: 25px 15px; color: white; text-align: center; border-radius: 0 0 12px 12px; }
+                        .tpl-creative .preview-header h1 { color: white; font-size: 24px; margin: 0; }
+                        .tpl-creative .preview-header p { color: rgba(255,255,255,0.8) !important; margin: 4px 0 0 0; }
+                        .tpl-creative h3 { background: #f3e8ff; color: #7e22ce; padding: 6px 12px; border-radius: 4px; border: none; font-size: 12px; font-weight: 700; margin-top: 15px; }
+
+                        .tpl-executive { font-family: serif; color: #111; }
+                        .tpl-executive .preview-header { text-align: center; border-bottom: 1px double #000; padding-bottom: 12px; }
+                        .tpl-executive h1 { font-size: 26px; }
+                        .tpl-executive h3 { text-align: center; font-style: italic; border: none; position: relative; font-size: 12px; margin-top: 15px; }
+                        .tpl-executive h3::after { content: ''; position: absolute; bottom: -4px; left: 45%; width: 10%; border-bottom: 1px solid #000; }
+
+                        .tpl-tech { font-family: monospace; background: #fafafa; color: #111827; }
+                        .tpl-tech .preview-header h1::before { content: '> '; color: #10b981; }
+                        .tpl-tech h1 { font-size: 22px; }
+                        .tpl-tech h3 { background: #111827; color: #10b981; padding: 4px 8px; display: inline-block; font-size: 11px; margin-top: 15px; }
+
+                        .tpl-academic { font-family: serif; line-height: 1.4; color: #000; }
+                        .tpl-academic .preview-header { text-align: center; }
+                        .tpl-academic h3 { text-transform: uppercase; text-align: center; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 4px 0; font-size: 12px; margin-top: 15px; }
+
+                        .tpl-startup { color: #0f172a; }
+                        .tpl-startup .preview-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f43f5e; padding-bottom: 8px; }
+                        .tpl-startup .preview-header h1 { font-size: 26px; font-weight: 900; margin: 0; }
+                        .tpl-startup h3 { color: #f43f5e; font-weight: 800; border: none; font-size: 13px; margin-top: 15px; }
+
+                        .tpl-glass { background: #0f172a; color: white; }
+                        .tpl-glass .preview-header { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; }
+                        .tpl-glass h1 { color: white; font-size: 24px; }
+                        .tpl-glass h3 { border-bottom: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; margin-top: 15px; }
+                        .tpl-glass .preview-item-sub { color: #94a3b8; }
+
+                        .tpl-student { border: 10px solid #e2e8f0; color: #333; }
+                        .tpl-student .preview-header { padding: 10px; background: #f1f5f9; }
+                        .tpl-student h3 { color: #64748b; font-size: 11px; margin-top: 15px; }
+
+                        .tpl-corporate { background: #fff; color: #333; }
+                        .tpl-corporate .preview-header { border-left: 8px solid #1e3a8a; padding-left: 15px; }
+                        .tpl-corporate h1 { color: #1e3a8a; font-size: 24px; }
+                        .tpl-corporate h3 { color: #1e3a8a; background: #eff6ff; padding: 6px; border: none; font-size: 12px; margin-top: 15px; }
+
+                        .preview-header { margin-bottom: 15px; }
+                        .preview-section { margin-bottom: 12px; }
+                        .preview-item { margin-bottom: 8px; }
+                        .preview-item-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 12px; }
+                        .preview-item-sub { color: #64748b; font-size: 11px; margin-bottom: 2px; }
+
+                        @media (max-width: 900px) {
+                            .cv-builder-container {
+                                grid-template-columns: 1fr !important;
+                                height: auto !important;
+                                overflow: visible !important;
+                            }
+                            .cv-template-sidebar {
+                                flex-direction: row !important;
+                                height: auto !important;
+                                width: 100% !important;
+                                overflow-x: auto !important;
+                                overflow-y: hidden !important;
+                                padding: 10px !important;
+                            }
+                            .cv-form-pane {
+                                height: auto !important;
+                            }
+                            .cv-preview-pane {
+                                height: auto !important;
+                                overflow-x: auto !important;
+                                align-items: flex-start !important;
+                            }
+                        }
+                    </style>
+
+                    <!-- Template Selector Sidebar -->
+                    <div class="cv-template-sidebar">
+                        <div class="cv-tpl-thumb active" data-tpl="minimal-ats" title="Minimal ATS">
+                            <i class="fa-solid fa-file-alt"></i>
+                            <span>ATS</span>
+                        </div>
+                        <div class="cv-tpl-thumb" data-tpl="modern-pro" title="Modern Pro">
+                            <i class="fa-solid fa-columns"></i>
+                            <span>Pro</span>
+                        </div>
+                        <div class="cv-tpl-thumb" data-tpl="creative" title="Creative Designer">
+                            <i class="fa-solid fa-palette"></i>
+                            <span>Creative</span>
+                        </div>
+                        <div class="cv-tpl-thumb" data-tpl="executive" title="Executive Suite">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <span>Exec</span>
+                        </div>
+                        <div class="cv-tpl-thumb" data-tpl="tech" title="Tech Specialist">
+                            <i class="fa-solid fa-code"></i>
+                            <span>Tech</span>
+                        </div>
+                        <div class="cv-tpl-thumb" data-tpl="academic" title="Academic CV">
+                            <i class="fa-solid fa-university"></i>
+                            <span>Acad</span>
+                        </div>
+                        <div class="cv-tpl-thumb" data-tpl="startup" title="Startup Nomad">
+                            <i class="fa-solid fa-rocket"></i>
+                            <span>Start</span>
+                        </div>
+                        <div class="cv-tpl-thumb" data-tpl="glass" title="Glassmorphism UI">
+                            <i class="fa-solid fa-braille"></i>
+                            <span>Glass</span>
+                        </div>
+                        <div class="cv-tpl-thumb" data-tpl="student" title="Student Entry Level">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <span>Stud</span>
+                        </div>
+                        <div class="cv-tpl-thumb" data-tpl="corporate" title="Corporate Professional">
+                            <i class="fa-solid fa-building"></i>
+                            <span>Corp</span>
+                        </div>
+                    </div>
+
+                    <!-- Form Pane -->
+                    <div class="cv-form-pane" id="cvForm">
+                        <div style="display:flex; gap:8px;">
+                            <button class="app-btn primary" id="cv-export-pdf" style="flex:1; font-size:11px; padding:8px; border-radius:20px; gap:4px;">
+                                <i class="fa-solid fa-download"></i>Download PDF
+                            </button>
+                            <button class="app-btn secondary" id="cv-save" style="font-size:11px; padding:8px; border-radius:20px;">
+                                <i class="fa-solid fa-save"></i>Save Draft
+                            </button>
+                            <button class="app-btn secondary" id="cv-clear" style="font-size:11px; padding:8px; border-radius:20px; color:#ef4444;">
+                                <i class="fa-solid fa-trash"></i>Clear
+                            </button>
+                        </div>
+
+                        <!-- Personal Details -->
+                        <div class="form-section">
+                            <h4 style="font-size:12px; font-weight:700; color:var(--accent-primary); margin-bottom:10px;"><i class="fa-solid fa-user" style="margin-right:6px;"></i>Personal Details</h4>
+                            <div class="form-group" style="margin-bottom:8px;">
+                                <label>Full Name</label>
+                                <input type="text" id="cv-name" data-key="fullName" placeholder="John Doe">
+                            </div>
+                            <div class="form-group" style="margin-bottom:8px;">
+                                <label>Job Title</label>
+                                <input type="text" id="cv-title" data-key="jobTitle" placeholder="Software Engineer">
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="cv-email" data-key="email" placeholder="john@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="text" id="cv-phone" data-key="phone" placeholder="+1 234 567 890">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Location</label>
+                                <input type="text" id="cv-location" data-key="location" placeholder="New York, USA">
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="form-section">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <h4 style="font-size:12px; font-weight:700; color:var(--accent-primary); margin:0;"><i class="fa-solid fa-file-alt" style="margin-right:6px;"></i>Summary</h4>
+                                <button class="app-btn secondary" id="cv-ai-btn" style="font-size:9px; padding:3px 8px; border-radius:4px; gap:4px;">
+                                    <i class="fa-solid fa-robot"></i>AI Generate
+                                </button>
+                            </div>
+                            <textarea id="cv-summary" data-key="summary" rows="3" placeholder="Describe your background and achievements..."></textarea>
+                        </div>
+
+                        <!-- Experience -->
+                        <div class="form-section">
+                            <h4 style="font-size:12px; font-weight:700; color:var(--accent-primary); margin-bottom:10px;"><i class="fa-solid fa-briefcase" style="margin-right:6px;"></i>Experience</h4>
+                            <div id="cv-exp-list"></div>
+                            <button class="app-btn secondary" id="cv-add-exp" style="width:100%; border-radius:6px; font-size:11px; padding:6px; margin-top:8px;">
+                                <i class="fa-solid fa-plus" style="margin-right:4px;"></i>Add Experience
+                            </button>
+                        </div>
+
+                        <!-- Education -->
+                        <div class="form-section">
+                            <h4 style="font-size:12px; font-weight:700; color:var(--accent-primary); margin-bottom:10px;"><i class="fa-solid fa-graduation-cap" style="margin-right:6px;"></i>Education</h4>
+                            <div id="cv-edu-list"></div>
+                            <button class="app-btn secondary" id="cv-add-edu" style="width:100%; border-radius:6px; font-size:11px; padding:6px; margin-top:8px;">
+                                <i class="fa-solid fa-plus" style="margin-right:4px;"></i>Add Education
+                            </button>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="form-section">
+                            <h4 style="font-size:12px; font-weight:700; color:var(--accent-primary); margin-bottom:6px;"><i class="fa-solid fa-tools" style="margin-right:6px;"></i>Skills</h4>
+                            <textarea id="cv-skills" data-key="skills" rows="2" placeholder="React, Node.js, TypeScript, UI Design..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Preview Pane -->
+                    <div class="cv-preview-pane">
+                        <div style="position:absolute; bottom:15px; right:15px; display:flex; align-items:center; gap:8px; z-index:10; background:rgba(0,0,0,0.6); padding:4px 8px; border-radius:20px; border:1px solid rgba(255,255,255,0.1);">
+                            <button class="app-btn secondary" id="cv-zoom-out" style="padding:4px 8px; font-size:10px; border-radius:50%;"><i class="fa-solid fa-minus"></i></button>
+                            <span id="cv-zoom-level" style="font-size:10px; font-weight:700; color:white; min-width:30px; text-align:center;">75%</span>
+                            <button class="app-btn secondary" id="cv-zoom-in" style="padding:4px 8px; font-size:10px; border-radius:50%;"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+
+                        <div class="cv-resume-paper tpl-minimal-ats" id="resume-preview" style="transform: scale(0.75);">
+                            <!-- Template HTML inside -->
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+        init() {
+            let resumeData = {
+                template: 'minimal-ats',
+                fullName: '',
+                jobTitle: '',
+                email: '',
+                phone: '',
+                location: '',
+                summary: '',
+                experience: [],
+                education: [],
+                skills: ''
+            };
+
+            const preview = document.getElementById('resume-preview');
+            const fullNameIn = document.getElementById('cv-name');
+            const jobTitleIn = document.getElementById('cv-title');
+            const emailIn = document.getElementById('cv-email');
+            const phoneIn = document.getElementById('cv-phone');
+            const locationIn = document.getElementById('cv-location');
+            const summaryIn = document.getElementById('cv-summary');
+            const skillsIn = document.getElementById('cv-skills');
+            const expContainer = document.getElementById('cv-exp-list');
+            const eduContainer = document.getElementById('cv-edu-list');
+
+            const getPlaceholder = (key) => {
+                const placeholders = {
+                    fullName: 'Your Name',
+                    jobTitle: 'Professional Title',
+                    email: 'email@example.com',
+                    phone: '+1 234 567 890',
+                    location: 'Location',
+                    summary: 'Write a compelling summary about your career goals and achievements here.',
+                    skills: 'React, Node.js, HTML, CSS, JavaScript, Git'
+                };
+                return placeholders[key] || '';
+            };
+
+            const updatePreview = () => {
+                if (resumeData.template === 'modern-pro') {
+                    preview.innerHTML = `
+                      <div class="preview-header">
+                        <h1>${resumeData.fullName || getPlaceholder('fullName')}</h1>
+                        <p style="font-size: 14px; color: #94a3b8; margin: 4px 0 0 0;">${resumeData.jobTitle || getPlaceholder('jobTitle')}</p>
+                      </div>
+                      <div class="preview-left">
+                        <div class="preview-section">
+                          <h3>Contact</h3>
+                          <p style="font-size: 11px; color: #475569; margin: 0 0 6px 0;"><i class="fa-solid fa-envelope"></i> ${resumeData.email || getPlaceholder('email')}</p>
+                          <p style="font-size: 11px; color: #475569; margin: 0 0 6px 0;"><i class="fa-solid fa-phone"></i> ${resumeData.phone || getPlaceholder('phone')}</p>
+                          <p style="font-size: 11px; color: #475569; margin: 0;"><i class="fa-solid fa-location-dot"></i> ${resumeData.location || getPlaceholder('location')}</p>
+                        </div>
+                        <div class="preview-section">
+                          <h3>Skills</h3>
+                          <p style="font-size: 11px; line-height: 1.6; white-space: pre-wrap;">${resumeData.skills || getPlaceholder('skills')}</p>
+                        </div>
+                      </div>
+                      <div class="preview-right">
+                        <div class="preview-section">
+                          <h3>Summary</h3>
+                          <p style="font-size: 11px; line-height: 1.5; white-space: pre-wrap;">${resumeData.summary || getPlaceholder('summary')}</p>
+                        </div>
+                        <div class="preview-section">
+                          <h3>Experience</h3>
+                          <div id="preview-experience-list"></div>
+                        </div>
+                        <div class="preview-section">
+                          <h3>Education</h3>
+                          <div id="preview-education-list"></div>
+                        </div>
+                      </div>
+                    `;
+                    const expList = document.getElementById('preview-experience-list');
+                    expList.innerHTML = resumeData.experience.map(exp => `
+                      <div class="preview-item">
+                        <div class="preview-item-header">
+                          <span>${exp.title || 'Position'}</span>
+                          <span>${exp.startDate || ''} - ${exp.endDate || 'Present'}</span>
+                        </div>
+                        <div class="preview-item-sub">${exp.company || 'Company'}</div>
+                        <p style="font-size: 10px; margin-top: 4px; white-space: pre-wrap;">${exp.description || ''}</p>
+                      </div>
+                    `).join('');
+                    const eduList = document.getElementById('preview-education-list');
+                    eduList.innerHTML = resumeData.education.map(edu => `
+                      <div class="preview-item">
+                        <div class="preview-item-header">
+                          <span>${edu.degree || 'Degree'}</span>
+                          <span>${edu.startDate || ''} - ${edu.endDate || ''}</span>
+                        </div>
+                        <div class="preview-item-sub">${edu.school || 'University'}</div>
+                      </div>
+                    `).join('');
+                    return;
+                }
+
+                // Standard Layout
+                preview.innerHTML = `
+                    <div class="preview-header">
+                      <h1 id="preview-fullName">${resumeData.fullName || getPlaceholder('fullName')}</h1>
+                      <p id="preview-jobTitle" style="font-size: 13px; color: #475569; margin: 4px 0 6px 0; font-weight:600;">${resumeData.jobTitle || getPlaceholder('jobTitle')}</p>
+                      <div style="display: flex; gap: 12px; font-size: 11px; color: #64748b; flex-wrap:wrap;">
+                          <span><i class="fa-solid fa-envelope" style="margin-right:4px;"></i>${resumeData.email || getPlaceholder('email')}</span>
+                          <span><i class="fa-solid fa-phone" style="margin-right:4px;"></i>${resumeData.phone || getPlaceholder('phone')}</span>
+                          <span><i class="fa-solid fa-location-dot" style="margin-right:4px;"></i>${resumeData.location || getPlaceholder('location')}</span>
+                      </div>
+                    </div>
+                    <div class="preview-section">
+                      <h3>Professional Summary</h3>
+                      <p style="font-size: 11px; line-height: 1.5; white-space: pre-wrap;">${resumeData.summary || getPlaceholder('summary')}</p>
+                    </div>
+                    <div class="preview-section">
+                      <h3>Experience</h3>
+                      <div id="preview-experience-list"></div>
+                    </div>
+                    <div class="preview-section">
+                      <h3>Education</h3>
+                      <div id="preview-education-list"></div>
+                    </div>
+                    <div class="preview-section">
+                      <h3>Skills</h3>
+                      <p style="font-size: 11px; line-height: 1.5; white-space: pre-wrap;">${resumeData.skills || getPlaceholder('skills')}</p>
+                    </div>
+                `;
+
+                const expList = document.getElementById('preview-experience-list');
+                if (expList) {
+                    expList.innerHTML = resumeData.experience.map(exp => `
+                      <div class="preview-item">
+                        <div class="preview-item-header">
+                          <span>${exp.title || 'Position'}</span>
+                          <span>${exp.startDate || ''} - ${exp.endDate || 'Present'}</span>
+                        </div>
+                        <div class="preview-item-sub">${exp.company || 'Company'}</div>
+                        <p style="font-size: 10px; margin-top: 4px; white-space: pre-wrap;">${exp.description || ''}</p>
+                      </div>
+                    `).join('');
+                }
+
+                const eduList = document.getElementById('preview-education-list');
+                if (eduList) {
+                    eduList.innerHTML = resumeData.education.map(edu => `
+                      <div class="preview-item">
+                        <div class="preview-item-header">
+                          <span>${edu.degree || 'Degree'}</span>
+                          <span>${edu.startDate || ''} - ${edu.endDate || ''}</span>
+                        </div>
+                        <div class="preview-item-sub">${edu.school || 'University'}</div>
+                      </div>
+                    `).join('');
+                }
+            };
+
+            const syncInputs = () => {
+                resumeData.fullName = fullNameIn.value;
+                resumeData.jobTitle = jobTitleIn.value;
+                resumeData.email = emailIn.value;
+                resumeData.phone = phoneIn.value;
+                resumeData.location = locationIn.value;
+                resumeData.summary = summaryIn.value;
+                resumeData.skills = skillsIn.value;
+                updatePreview();
+            };
+
+            [fullNameIn, jobTitleIn, emailIn, phoneIn, locationIn, summaryIn, skillsIn].forEach(el => {
+                el.oninput = syncInputs;
+            });
+
+            // Template switching
+            document.querySelectorAll('.cv-tpl-thumb').forEach(thumb => {
+                thumb.onclick = () => {
+                    document.querySelectorAll('.cv-tpl-thumb').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                    const tpl = thumb.getAttribute('data-tpl');
+                    resumeData.template = tpl;
+                    
+                    const classes = preview.className.split(' ').filter(c => !c.startsWith('tpl-'));
+                    preview.className = [...classes, `tpl-${tpl}`].join(' ');
+                    updatePreview();
+                };
+            });
+
+            // Dynamic items logic
+            window.cvAddExpItem = (id, title = '', company = '', start = '', end = '', desc = '') => {
+                const item = document.createElement('div');
+                item.className = 'cv-dynamic-item';
+                item.id = `cvexp-${id}`;
+                item.innerHTML = `
+                    <i class="fa-solid fa-times cv-remove-btn" onclick="window.cvRemoveExp(${id})"></i>
+                    <div class="form-group" style="margin-bottom:6px;">
+                        <label>Job Title</label>
+                        <input type="text" value="${title}" oninput="window.cvUpdateExp(${id}, 'title', this.value)" placeholder="Senior Developer">
+                    </div>
+                    <div class="form-group" style="margin-bottom:6px;">
+                        <label>Company</label>
+                        <input type="text" value="${company}" oninput="window.cvUpdateExp(${id}, 'company', this.value)" placeholder="Tech Corp">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px;">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="text" value="${start}" oninput="window.cvUpdateExp(${id}, 'startDate', this.value)" placeholder="Jan 2020">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="text" value="${end}" oninput="window.cvUpdateExp(${id}, 'endDate', this.value)" placeholder="Present">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea oninput="window.cvUpdateExp(${id}, 'description', this.value)" rows="2" placeholder="Responsibilities...">${desc}</textarea>
+                    </div>
+                `;
+                expContainer.appendChild(item);
+            };
+
+            window.cvUpdateExp = (id, field, value) => {
+                const exp = resumeData.experience.find(e => e.id === id);
+                if (exp) {
+                    exp[field] = value;
+                    updatePreview();
+                }
+            };
+
+            window.cvRemoveExp = (id) => {
+                resumeData.experience = resumeData.experience.filter(e => e.id !== id);
+                const el = document.getElementById(`cvexp-${id}`);
+                if (el) el.remove();
+                updatePreview();
+            };
+
+            document.getElementById('cv-add-exp').onclick = () => {
+                const id = Date.now();
+                resumeData.experience.push({ id, title: '', company: '', startDate: '', endDate: '', description: '' });
+                window.cvAddExpItem(id);
+                updatePreview();
+            };
+
+            // Education dynamic items
+            window.cvAddEduItem = (id, degree = '', school = '', start = '', end = '') => {
+                const item = document.createElement('div');
+                item.className = 'cv-dynamic-item';
+                item.id = `cvedu-${id}`;
+                item.innerHTML = `
+                    <i class="fa-solid fa-times cv-remove-btn" onclick="window.cvRemoveEdu(${id})"></i>
+                    <div class="form-group" style="margin-bottom:6px;">
+                        <label>Degree / Major</label>
+                        <input type="text" value="${degree}" oninput="window.cvUpdateEdu(${id}, 'degree', this.value)" placeholder="B.S. Computer Science">
+                    </div>
+                    <div class="form-group" style="margin-bottom:6px;">
+                        <label>School / University</label>
+                        <input type="text" value="${school}" oninput="window.cvUpdateEdu(${id}, 'school', this.value)" placeholder="Harvard University">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="text" value="${start}" oninput="window.cvUpdateEdu(${id}, 'startDate', this.value)" placeholder="2016">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="text" value="${end}" oninput="window.cvUpdateEdu(${id}, 'endDate', this.value)" placeholder="2020">
+                        </div>
+                    </div>
+                `;
+                eduContainer.appendChild(item);
+            };
+
+            window.cvUpdateEdu = (id, field, value) => {
+                const edu = resumeData.education.find(e => e.id === id);
+                if (edu) {
+                    edu[field] = value;
+                    updatePreview();
+                }
+            };
+
+            window.cvRemoveEdu = (id) => {
+                resumeData.education = resumeData.education.filter(e => e.id !== id);
+                const el = document.getElementById(`cvedu-${id}`);
+                if (el) el.remove();
+                updatePreview();
+            };
+
+            document.getElementById('cv-add-edu').onclick = () => {
+                const id = Date.now();
+                resumeData.education.push({ id, degree: '', school: '', startDate: '', endDate: '' });
+                window.cvAddEduItem(id);
+                updatePreview();
+            };
+
+            // Zoom level controls
+            let zoom = 0.75;
+            const zoomValEl = document.getElementById('cv-zoom-level');
+            document.getElementById('cv-zoom-in').onclick = () => {
+                zoom = Math.min(zoom + 0.1, 1.3);
+                preview.style.transform = `scale(${zoom})`;
+                zoomValEl.textContent = `${Math.round(zoom * 100)}%`;
+            };
+            document.getElementById('cv-zoom-out').onclick = () => {
+                zoom = Math.max(zoom - 0.1, 0.4);
+                preview.style.transform = `scale(${zoom})`;
+                zoomValEl.textContent = `${Math.round(zoom * 100)}%`;
+            };
+
+            // AI mock generate
+            document.getElementById('cv-ai-btn').onclick = () => {
+                const summaries = [
+                    "Results-oriented Professional with over 5 years of experience in the industry. Proven track record of leading successful teams and delivering high-impact projects on time and within budget.",
+                    "Dynamic and creative Software Engineer with a passion for building scalable web applications. Expert in React, Node.js, and modern cloud architectures.",
+                    "Strategic Marketing Specialist with expertise in digital growth and brand development. Skilled at identifying market trends and executing data-driven campaigns."
+                ];
+                const random = summaries[Math.floor(Math.random() * summaries.length)];
+                resumeData.summary = random;
+                summaryIn.value = random;
+                updatePreview();
+                utils.showToast('AI resume summary generated!');
+            };
+
+            // Save draft
+            document.getElementById('cv-save').onclick = () => {
+                localStorage.setItem('meytool_cv_data', JSON.stringify(resumeData));
+                utils.showToast('Resume draft saved locally!');
+            };
+
+            // Clear form
+            document.getElementById('cv-clear').onclick = () => {
+                if (confirm('Are you sure you want to clear all resume fields?')) {
+                    localStorage.removeItem('meytool_cv_data');
+                    resumeData = {
+                        template: 'minimal-ats',
+                        fullName: '',
+                        jobTitle: '',
+                        email: '',
+                        phone: '',
+                        location: '',
+                        summary: '',
+                        experience: [],
+                        education: [],
+                        skills: ''
+                    };
+                    fullNameIn.value = '';
+                    jobTitleIn.value = '';
+                    emailIn.value = '';
+                    phoneIn.value = '';
+                    locationIn.value = '';
+                    summaryIn.value = '';
+                    skillsIn.value = '';
+                    expContainer.innerHTML = '';
+                    eduContainer.innerHTML = '';
+                    updatePreview();
+                    utils.showToast('Resume cleared', 'info');
+                }
+            };
+
+            // Local PDF export via canvas
+            document.getElementById('cv-export-pdf').onclick = async () => {
+                const btn = document.getElementById('cv-export-pdf');
+                btn.disabled = true;
+                utils.showToast('Compiling high-resolution PDF...');
+                
+                try {
+                    const originalTransform = preview.style.transform;
+                    // reset transform temporarily for clear capturing
+                    preview.style.transform = 'scale(1.0)';
+                    
+                    const canvas = await html2canvas(preview, {
+                        scale: 2,
+                        useCORS: true
+                    });
+                    
+                    preview.style.transform = originalTransform;
+                    
+                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    
+                    const w = 210;
+                    const h = (canvas.height * w) / canvas.width;
+                    
+                    pdf.addImage(imgData, 'JPEG', 0, 0, w, h);
+                    pdf.save((resumeData.fullName || 'resume').toLowerCase().replace(/\s+/g, '_') + '_cv.pdf');
+                    utils.showToast('PDF resume downloaded successfully!');
+                    window.incrementStatsRun();
+                } catch (err) {
+                    utils.showToast('PDF rendering failed: ' + err.message, 'error');
+                } finally {
+                    btn.disabled = false;
+                }
+            };
+
+            // Load Draft on load
+            const loadDraft = () => {
+                const saved = localStorage.getItem('meytool_cv_data');
+                if (saved) {
+                    try {
+                        resumeData = JSON.parse(saved);
+                        fullNameIn.value = resumeData.fullName || '';
+                        jobTitleIn.value = resumeData.jobTitle || '';
+                        emailIn.value = resumeData.email || '';
+                        phoneIn.value = resumeData.phone || '';
+                        locationIn.value = resumeData.location || '';
+                        summaryIn.value = resumeData.summary || '';
+                        skillsIn.value = resumeData.skills || '';
+                        
+                        expContainer.innerHTML = '';
+                        resumeData.experience.forEach(exp => {
+                            window.cvAddExpItem(exp.id, exp.title, exp.company, exp.startDate, exp.endDate, exp.description);
+                        });
+
+                        eduContainer.innerHTML = '';
+                        resumeData.education.forEach(edu => {
+                            window.cvAddEduItem(edu.id, edu.degree, edu.school, edu.startDate, edu.endDate);
+                        });
+
+                        // Highlight correct template thumb
+                        document.querySelectorAll('.cv-tpl-thumb').forEach(t => {
+                            t.classList.toggle('active', t.getAttribute('data-tpl') === resumeData.template);
+                        });
+
+                        const classes = preview.className.split(' ').filter(c => !c.startsWith('tpl-'));
+                        preview.className = [...classes, `tpl-${resumeData.template}`].join(' ');
+                    } catch(e) {
+                        console.error('Error loading draft', e);
+                    }
+                }
+                updatePreview();
+            };
+            loadDraft();
+        }
     }
 ];
 

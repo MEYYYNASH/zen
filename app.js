@@ -33,7 +33,8 @@ const TRANSLATIONS = {
         preview_safe: "Safe to use",
         preview_browser: "Works in browser",
         preview_local: "Runs locally",
-        btn_install_app: "Install MeyTool App"
+        btn_install_app: "Install MeyTool App",
+        popular_tools: "Popular Tools"
     },
     kh: {
         nav_dashboard: "ផ្ទាំងគ្រប់គ្រង",
@@ -68,7 +69,8 @@ const TRANSLATIONS = {
         preview_safe: "សុវត្ថិភាពក្នុងការប្រើប្រាស់",
         preview_browser: "ដំណើរការលើកម្មវិធីរុករក",
         preview_local: "ដំណើរការលើម៉ាស៊ីនផ្ទាល់ខ្លួន",
-        btn_install_app: "ដំឡើងកម្មវិធី MeyTool"
+        btn_install_app: "ដំឡើងកម្មវិធី MeyTool",
+        popular_tools: "ឧបករណ៍ពេញនិយម"
     }
 };
 
@@ -175,6 +177,58 @@ class AppManager {
         };
 
         const query = filterQuery.toLowerCase().trim();
+
+        // Render Popular Tools at the very top when there is no active search query
+        if (!query) {
+            const popularTools = TOOLS.filter(tool => tool.popular);
+            if (popularTools.length > 0) {
+                const secTitle = document.createElement('h2');
+                secTitle.className = 'section-title';
+                const label = this.currentLang === 'en' ? '🔥 Popular Tools' : '🔥 ' + (TRANSLATIONS[this.currentLang].popular_tools || 'ឧបករណ៍ពេញនិយម');
+                secTitle.innerHTML = label;
+                container.appendChild(secTitle);
+
+                const grid = document.createElement('div');
+                grid.className = 'tools-grid';
+                
+                popularTools.forEach(tool => {
+                    const isFav = this.favorites.includes(tool.id);
+                    const card = document.createElement('div');
+                    card.className = 'tool-card';
+                    card.setAttribute('data-tool-id', tool.id);
+                    
+                    card.innerHTML = `
+                        <div class="tool-card-header">
+                            <span class="tool-card-icon">${tool.icon}</span>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="background:linear-gradient(135deg, #ff00ff, #00ffff); color:#000; font-size:9px; font-weight:800; padding:2px 6px; border-radius:12px; text-transform:uppercase; letter-spacing:0.5px;">Popular</span>
+                                <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-star favorite-star ${isFav ? 'active' : ''}" data-fav-id="${tool.id}"></i>
+                            </div>
+                        </div>
+                        <div class="tool-card-info">
+                            <h3 class="tool-card-title">${tool.name}</h3>
+                            <p class="tool-card-desc">${tool.description}</p>
+                        </div>
+                        <div class="tool-card-tags">
+                            ${tool.tags.slice(0, 3).map(tag => `<span class="tool-tag">#${tag}</span>`).join('')}
+                        </div>
+                    `;
+
+                    card.onclick = (e) => {
+                        if (e.target.classList.contains('favorite-star')) {
+                            e.stopPropagation();
+                            this.toggleFavorite(tool.id);
+                            return;
+                        }
+                        this.openTool(tool.id);
+                    };
+
+                    grid.appendChild(card);
+                });
+
+                container.appendChild(grid);
+            }
+        }
 
         for (const [catId, catName] of Object.entries(categories)) {
             // Filter tools in this category

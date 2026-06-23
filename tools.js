@@ -1063,6 +1063,7 @@ const TOOLS = [
     // --- UTILITIES ---
     {
         id: 'util-qrcode',
+        popular: true,
         name: 'QR Code Generator',
         category: 'utilities',
         icon: '<i class="fa-solid fa-qrcode"></i>',
@@ -1882,6 +1883,7 @@ const TOOLS = [
     },
     {
         id: 'file-universal-pdf',
+        popular: true,
         name: 'Universal PDF Converter',
         category: 'file',
         icon: '<i class="fa-solid fa-file-pdf"></i>',
