@@ -1,10 +1,12 @@
-const CACHE_NAME = 'meytool-cache-v1.1';
+const CACHE_NAME = 'meytool-cache-v1.2';
 const ASSETS = [
     './',
     './index.html',
     './style.css',
     './app.js',
     './tools.js',
+    './finance_tools.js',
+    './file_tools.js',
     './manifest.json',
     './icon-192.png',
     './icon-512.png',
